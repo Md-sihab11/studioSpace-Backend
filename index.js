@@ -96,7 +96,23 @@ app.get("/my-bookings/:email", async (req, res) => {
 
     res.send(result);
 });
+app.patch("/cancel-booking/:id", async (req, res) => {
+    const id = req.params.id;
 
+    const result = await bookingCollection.updateOne(
+        {
+            _id: new ObjectId(id),
+            status: "Pending"
+        },
+        {
+            $set: {
+                status: "Cancelled"
+            }
+        }
+    );
+
+    res.send(result);
+});
 app.patch("/booking-status/:id", async (req, res) => {
     const id = req.params.id;
     const { status } = req.body;
