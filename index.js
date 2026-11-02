@@ -42,6 +42,31 @@ app.get("/studios/:id", async (req, res) => {
     res.send(result);
 });
 
+
+app.put("/update-studio/:id", async (req, res) => {
+    const id = req.params.id;
+    const data = req.body;
+
+    const result = await studioCollection.updateOne(
+        { _id: new ObjectId(id) },
+        {
+            $set: data
+        }
+    );
+
+    res.send(result);
+});
+
+app.delete("/delete-studio/:id", async (req, res) => {
+    const id = req.params.id;
+
+    const result = await studioCollection.deleteOne({
+        _id: new ObjectId(id)
+    });
+
+    res.send(result);
+});
+
 app.post("/add-studio", async (req, res) => {
     const data = req.body
     const result = await studioCollection.insertOne(data)
