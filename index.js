@@ -22,6 +22,7 @@ export async function connectToMongoDB() {
 const mongoclient = await connectToMongoDB();
 const db = mongoclient.db("studiospace");
 const studioCollection = db.collection("studios")
+const bookingCollection = db.collection("bookings");
 
 
 app.get("/", (req, res) => {
@@ -92,6 +93,24 @@ app.get("/my-bookings/:email", async (req, res) => {
     const result = await bookingCollection.find({
         userEmail: email
     }).toArray();
+
+    res.send(result);
+});
+
+app.patch("/booking-status/:id", async (req, res) => {
+    const id = req.params.id;
+    const { status } = req.body;
+
+    const result = await bookingCollection.updateOne(
+        {
+            _id: new ObjectId(id)
+        },
+        {
+            $set: {
+                status: status
+            }
+        }
+    );
 
     res.send(result);
 });
