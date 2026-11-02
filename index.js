@@ -74,6 +74,28 @@ app.post("/add-studio", async (req, res) => {
     res.send(result)
 });
 
+app.post("/add-booking", async (req, res) => {
+    const data = req.body;
+
+    const result = await bookingCollection.insertOne({
+        ...data,
+        status: "Pending",
+        createdAt: new Date()
+    });
+
+    res.send(result);
+});
+
+app.get("/my-bookings/:email", async (req, res) => {
+    const email = req.params.email;
+
+    const result = await bookingCollection.find({
+        userEmail: email
+    }).toArray();
+
+    res.send(result);
+});
+
 app.listen(PORT, () => {
     console.log(`Server is running at http://localhost:${PORT}`);
 });
