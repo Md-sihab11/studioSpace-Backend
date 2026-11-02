@@ -1,6 +1,6 @@
 import "dotenv/config";
 import express from "express";
-import { MongoClient } from 'mongodb';
+import { MongoClient, ObjectId  } from 'mongodb';
 import cors from 'cors';
 import dns from "node:dns";
 dns.setServers(["8.8.8.8", "1.1.1.1"]);
@@ -87,6 +87,17 @@ app.post("/add-booking", async (req, res) => {
     res.send(result);
 });
 
+app.get("/my-listings/:email", async (req, res) => {
+    const email = req.params.email;
+
+    const result = await studioCollection.find({
+        ownerEmail: email
+    }).toArray();
+
+    res.send(result);
+});
+
+
 app.get("/my-bookings/:email", async (req, res) => {
     const email = req.params.email;
 
@@ -117,15 +128,15 @@ app.patch("/booking-status/:id", async (req, res) => {
     const id = req.params.id;
     const { status } = req.body;
 
+    if (!["Pending", "Confirmed", "Completed", "Cancelled"].includes(status)) {
+        return res.status(400).send({
+            message: "Invalid booking status"
+        });
+    }
+
     const result = await bookingCollection.updateOne(
-        {
-            _id: new ObjectId(id)
-        },
-        {
-            $set: {
-                status: status
-            }
-        }
+        { _id: new ObjectId(id) },
+        { $set: { status: status } }
     );
 
     res.send(result);
