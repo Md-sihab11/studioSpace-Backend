@@ -1,6 +1,6 @@
 import "dotenv/config";
 import express from "express";
-import { MongoClient, ObjectId  } from 'mongodb';
+import { MongoClient, ObjectId } from 'mongodb';
 import cors from 'cors';
 import dns from "node:dns";
 dns.setServers(["8.8.8.8", "1.1.1.1"]);
@@ -24,6 +24,24 @@ const db = mongoclient.db("studiospace");
 const studioCollection = db.collection("studios")
 const bookingCollection = db.collection("bookings");
 
+
+
+const verifyToken = (req, res, next) => {
+    console.log("🔥 VERIFY MIDDLEWARE CALLED");
+    const authToken = req.headers.authorization;
+
+    console.log("========== TOKEN DEBUG ==========");
+    console.log("Authorization Header:", authToken);
+    console.log("Token Received:", !!authToken);
+
+    if (!authToken) {
+        return res.status(401).send({
+            message: "Unauthorized! Token missing."
+        });
+    }
+
+    next();
+};
 
 app.get("/", (req, res) => {
     res.send("Hello, World!");
@@ -58,7 +76,7 @@ app.put("/update-studio/:id", async (req, res) => {
     res.send(result);
 });
 
-app.delete("/delete-studio/:id", async (req, res) => {
+app.delete("/delete-studio/:id", verifyToken, async (req, res) => {
     const id = req.params.id;
 
     const result = await studioCollection.deleteOne({
@@ -68,14 +86,14 @@ app.delete("/delete-studio/:id", async (req, res) => {
     res.send(result);
 });
 
-app.post("/add-studio", async (req, res) => {
+app.post("/add-studio", verifyToken, async (req, res) => {
     const data = req.body
     const result = await studioCollection.insertOne(data)
     console.log(result)
     res.send(result)
 });
 
-app.post("/add-booking", async (req, res) => {
+app.post("/add-booking", verifyToken, async (req, res) => {
     const data = req.body;
 
     const result = await bookingCollection.insertOne({
