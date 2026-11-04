@@ -1,5 +1,0 @@
-npm i dotenv
-npm i express
-npm install -D nodemon
-npm install mongodb
-npm install cors mongodb
